@@ -3,6 +3,18 @@
 Created on Mon Dec 07 22:08:13 2015
 
 @author: derricw
+
+Demonstrates use of the Sentech DLL using ctypes.
+
+1) Loads the header file and dll.
+2) Checks for available cameras.
+3) Gets a camera handle.
+4) Gets image properties from the camera.
+5) Sets up a buffer for the image.
+6) Copies the cameras current image to the buffer.
+7) Casts the buffer to an ndarray.
+8) Displays the ndarray using matplotlib.
+
 """
 import traceback
 import ctypes
@@ -18,6 +30,7 @@ from senpy import SentechDLL
 # load the dll
 dot_h_file = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)\include\StCamD.h"
 dll = SentechDLL(dot_h_file)
+print("DLL loaded!")
 
 # check for cameras
 cameras_available = dll.StCam_CameraCount(None)
@@ -35,7 +48,7 @@ else:
     raise Exception("Failed to initialize camera!")
 
 try:
-    # Get image size
+    # Get image shape
     cwidth = c_ulong()
     cheight = c_ulong()
     creserved = c_ulong()
@@ -49,6 +62,12 @@ try:
     
     width, height = cwidth.value, cheight.value
     print("Camera image shape: {}x{}".format(width, height))
+    
+    # Set pixel format so that the rest of this example works properly
+    pixformat = dll.STCAM_PIXEL_FORMAT_08_MONO_OR_RAW
+    ret = dll.StCam_SetPreviewPixelFormat(camera, pixformat)
+    if not ret:
+        print("Failed to set pixel format!")
     
     # Get pixel format
     cpixformat = c_ulong()
@@ -64,13 +83,11 @@ try:
     
     # Get bytes per image
     cbpi = c_ulong()
-    clinepitch = c_ulong()
-    dll.StCam_GetPreviewDataSize(camera, byref(cbpi), byref(cwidth),
-                                 byref(cheight), byref(clinepitch))
+    dll.StCam_GetRawDataSize(camera, byref(cbpi))
     bpi = cbpi.value
     print("Camera bytes per image: {}".format(bpi))
     
-    # Allocate memory
+    # Allocate memory for image
     imgpointer = malloc(bpi)
     imgdata = cast(imgpointer, POINTER(c_byte))
     
@@ -78,9 +95,9 @@ try:
     cbytesxferred = c_ulong()
     cframeno = c_ulong()
     cmillisecs = c_ulong(1000)
-    ret = dll.StCam_TakePreviewSnapShot(camera, imgdata, bpi,
-                                        byref(cbytesxferred), byref(cframeno),
-                                        cmillisecs)
+    ret = dll.StCam_TakeRawSnapShot(camera, imgdata, bpi,
+                                    byref(cbytesxferred), byref(cframeno),
+                                    cmillisecs)
     if not ret:
         print("Failed to transfer image from camera.")
 
@@ -88,7 +105,7 @@ try:
     array = (c_ubyte * int(height*bpi) *
              int(width*bpi)).from_address(addressof(imgdata.contents))
              
-    # Convert image array to numpy so we can use it in pythonland
+    # Convert image array to numpy so we can display it easily
     npimg = np.ndarray(buffer=array, dtype=np.uint8, shape=(height, width))
     
     # Show using matplotlib
