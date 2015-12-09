@@ -4,6 +4,10 @@ from ctypes import *
 
 
 def find_dll(header_file, arch="64"):
+    """
+    Attemps to find the StCamD.dll for the appropriate archetecture given the
+        location of the header file ("StCamD.h")
+    """
     abs_path = os.path.abspath(header_file)
     include_folder = os.path.dirname(abs_path)
     root_folder = os.path.dirname(include_folder)
@@ -47,9 +51,11 @@ types = {
 
 
 class SentechDLL(object):
-    def __init__(self, header_file):
+    def __init__(self, header_file, dll=""):
         self.header_file = header_file
-        self.dll = windll.LoadLibrary(find_dll(header_file))
+        if not dll:
+            dll = find_dll(header_file)
+        self.dll = windll.LoadLibrary(dll)
         
         self._load_constants()
         self._load_functions()
@@ -109,8 +115,9 @@ class SentechDLL(object):
                 cfunc.restype = types[v['ret_type']]
             except KeyError:
                 print("Couldn't parse return type for: {}".format(k))
-                
+            functions[k]['function'] = cfunc
             setattr(self, k, cfunc)
+        self.functions = functions
         
     
 
