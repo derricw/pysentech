@@ -19,6 +19,7 @@ import traceback
 import ctypes
 from ctypes import *
 malloc = ctypes.cdll.msvcrt.malloc  #windows
+free = ctypes.cdll.msvcrt.free
 
 import numpy as np
 import cv2
@@ -121,6 +122,8 @@ try:
         
     cv2.destroyAllWindows()
 
+    # Free buffer
+    free(imgpointer)
     
 except Exception:
     traceback.print_exc()
