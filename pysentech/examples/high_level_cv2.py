@@ -6,7 +6,7 @@ Created on Mon Jan 11 22:53:51 2016
 
 high_level_cv2.py
 
-Example for high level camera API using matplotlib to show the image.
+Example for high level camera API using OpenCV to show the image.
 
 Demonstrates how to:
 
