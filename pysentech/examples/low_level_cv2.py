@@ -92,7 +92,7 @@ try:
     imgdata = cast(imgpointer, POINTER(c_byte))
     
     # Set up display window
-    cv2.namedWindow("senpy")    
+    cv2.namedWindow("pysentech")    
     
     # Transfer images from camera until user hits ESC
     cbytesxferred = c_ulong()

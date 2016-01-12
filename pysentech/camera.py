@@ -5,11 +5,9 @@ Created on Mon Dec 07 22:04:46 2015
 @author: derricw
 """
 from ctypes import *
-malloc = ctypes.cdll.msvcrt.malloc  #windows
-free = ctypes.cdll.msvcrt.free  #windows
-import traceback
 
 from error import SentechError
+from frame import _SentechFrame
 
 #Args that will be passed by reference
 POINTER_ARGS = [
@@ -21,11 +19,13 @@ POINTER_ARGS = [
     "PFLOAT",
 ]
 
+# Supported pixel formats
 PIXEL_FORMATS = {
     1: "Mono8",
     4: "BGR24",
     8: "BGR32",
 }
+
 
 def make_method(cam, function, arg_types, ret_type, dll):
     """
@@ -46,6 +46,7 @@ def make_method(cam, function, arg_types, ret_type, dll):
         return result
     return method
 
+
 class SentechCamera(object):
     """
     A sentech camera instance.
@@ -56,9 +57,11 @@ class SentechCamera(object):
         
         self._setup_low_level()
         
-        self._frame_buffer = None
-        self._setup_frame_buffer()
-                
+        self._cbytesxferred = c_ulong()
+        self._cframeno = c_ulong()
+        
+        self._setup_frame()
+        
     def _setup_low_level(self):
         """
         Takes all dll functions with the camera handle as their first argument
@@ -71,11 +74,19 @@ class SentechCamera(object):
                 method_name = k
                 method = make_method(self, v['function'], v['arg_types'],
                                      v['ret_type'], self.dll)
-                setattr(self, method_name, method)
+                setattr(self, method_name, method)     
                 
-    def _setup_frame_buffer(self):
-        if self._frame_buffer:
-            free(self._frame_buffer)
+    def _setup_frame(self):
+        """
+        Sets up the SentechFrame.  This needs to be run any time the image
+            shape or pixel format changes.
+        """
+        width, height = self.image_shape
+        self.frame = _SentechFrame(width=width,
+                                  height=height,
+                                  bpi=self.image_size,
+                                  camera=self,
+                                  pixel_format=self.pixel_format)
         
     @property        
     def image_size(self):
@@ -95,6 +106,7 @@ class SentechCamera(object):
         for k, v in PIXEL_FORMATS.iteritems():
             if v == value:
                 self.StCam_SetPreviewPixelFormat(k)
+                self._setup_frame()  #new payload size
         
     @property
     def image_shape(self):
@@ -120,6 +132,7 @@ class SentechCamera(object):
         width, height = value
         offsetx, offsety = self.image_offsets
         self.StCam_SetImageSize(0, 8, offsetx, offsety, width, height)
+        self._setup_frame()  #new payload size
         
     @property
     def image_offsets(self):
@@ -162,6 +175,17 @@ class SentechCamera(object):
     def image_width(self, value):
         _, height = self.image_shape
         self.image_shape = value, height
+    
+    @property
+    def gain(self):
+        cgain = c_ushort()
+        self.StCam_GetGain(cgain)
+        return cgain.value
+    @gain.setter
+    def gain(self, value):
+        if value < 0:
+            value = 0
+        self.StCam_SetGain(value)
     
     @property    
     def max_image_shape(self):
@@ -218,8 +242,39 @@ class SentechCamera(object):
         DOESNT WORK YET        
         """
         self.StCam_LoadSettingFileA(path)
+        
+    def _snapshot(self, timeout_ms):
+        """
+        Transfers the current camera image to the frame buffer.
+        
+        Args:
+            timeout_ms (int): timeout for buffer transfer in milliseconds
+        
+        """
+        self.dll.StCam_TakeRawSnapShot(self.handle,
+                                       self.frame.buffer,
+                                       self.frame.bpi,
+                                       byref(self._cbytesxferred),
+                                       byref(self._cframeno),
+                                       c_ulong(timeout_ms))
+        
+    def grab_frame(self, timeout_ms=1000):
+        """ Acquires an image from the camera into the frame buffer and
+                returns the SentechFrame object.
+                
+        Args:
+            timeout_ms (Optional[int]): timeout for buffer transfer in milliseconds
             
+        Returns:
+            _SentechFrame: the frame object
+                
+        """
+        self._snapshot(timeout_ms)
+        return self.frame
+
     def release(self):
+        """ Releases the camera and frees frame buffer. """
+        del self.frame
         self.StCam_Close()
         
     def __del__(self):
@@ -230,19 +285,4 @@ class SentechCamera(object):
     
         
 if __name__ == "__main__":
-    
-    from pysentech import SentechDLL
-    dot_h_file = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)\include\StCamD.h"
-    dll = SentechDLL(dot_h_file)
-    
-    camera = SentechCamera(0, dll)
-    print camera.model
-    print camera.camera_version
-    print camera.driver_version
-    print camera.image_size
-    print camera.pixel_format
-    print camera.image_shape
-    print camera.max_image_shape
-    camera.pixel_format = "Mono8"
-    print camera.pixel_format
-    camera.release()
+    pass

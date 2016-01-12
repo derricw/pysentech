@@ -1,19 +1,27 @@
 import re
 import os
+import sys
 from ctypes import *
 
 
-def find_dll(header_file, arch="64"):
+def find_dll(header_file):
     """
     Attemps to find the StCamD.dll for the appropriate archetecture given the
         location of the header file ("StCamD.h")
     """
+    if sys.maxsize > 2**32:
+        arch = "64"
+    else:
+        arch = "32"
     abs_path = os.path.abspath(header_file)
     include_folder = os.path.dirname(abs_path)
     root_folder = os.path.dirname(include_folder)
     bin_folder = os.path.join(root_folder, "bin")
     dll_path = os.path.join(bin_folder, "x{}/StCamD.dll".format(arch))
-    return dll_path
+    if os.path.isfile(dll_path):
+        return dll_path
+    else:
+        raise IOError("Couldn't find StCamD.dll.  Please find it manually and enter the path as a kwarg.")
     
 #Types to define
 types = {
@@ -55,7 +63,8 @@ class SentechDLL(object):
         self.header_file = header_file
         if not dll:
             dll = find_dll(header_file)
-        self.dll = windll.LoadLibrary(dll)
+
+        self.dll = windll.LoadLibrary(dll)  #WINDOWS
         
         self._load_constants()
         self._load_functions()
@@ -124,5 +133,4 @@ class SentechDLL(object):
 if __name__ == "__main__":
     dot_h_file = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)\include\StCamD.h"
     dll = SentechDLL(dot_h_file)
-            
 

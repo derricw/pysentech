@@ -20,7 +20,6 @@ malloc = ctypes.cdll.msvcrt.malloc  #windows
 
 from pysentech import SentechDLL
 
-
 # load the dll
 dot_h_file = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)\include\StCamD.h"
 dll = SentechDLL(dot_h_file)
