@@ -26,7 +26,7 @@ pysentech *can* be used as a low level wrapper for the C dll using ctypes.  Usin
 
 ### High Level
 
-Because the Sentech SDK doesn't install itself, you have to provide the path to the StCamD.h header file.  It should be in the "include" folder.  It will try to find StCamD.dll based on the header file location.  If it can't be found you will have to supply the path to StCamD.dll as well.
+Because the Sentech SDK doesn't install itself, you have to provide the SDK folder.  It should contain an "include" folder.  It will then try to find the StCamD.dll and StCamD.h file location.
 
     >>> from pysentech import SentechSystem
 
