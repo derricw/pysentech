@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os, sys, glob, fnmatch
 
 setup(name="pysentech",
-      version=0.1.0,
+      version=0.1,
       description="pysentech is a python wrapper for the Sentech USB Camera SDK",
       long_description=""" pysentech is a python wrapper for the Sentech USB Camera SDK.
         It features a low-level interface for interacting with the C dll directly, and a high-level
@@ -22,6 +22,7 @@ setup(name="pysentech",
       author='derricw',
       author_email='derricw@gmail.com',
       url='https://github.com/derricw/pysentech',
+      download_url="https://github.com/derricw/pysentech/tarball/0.1",
       license='MIT',
       packages=['pysentech'],
       zip_safe=False,
