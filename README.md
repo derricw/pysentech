@@ -10,6 +10,10 @@ Install pysentech by running:
 
     $python setup.py install
 
+Or using pip:
+
+    $pip install pysentech
+
 ## Dependencies
 
 There are no hard dependencies for controlling cameras and acquiring frames.  However some of the examples use OpenCV, numpy, and PIL to display images.
