@@ -1,6 +1,6 @@
 # pysentech
 
-pysentech wraps the Sentech C API for USB cameras.  It has been tested with the current (v3.08) version of the Sentech USB StandardSDK.  It (currently) only works for Windows.
+pysentech wraps the Sentech C API for USB cameras.  It has been tested with the current (v3.08) version of the Sentech USB StandardSDK.
 
 ## Installation
 
@@ -62,7 +62,7 @@ Frames can be cast as various types for your convenience:
 
     >>> np_img = frame.as_numpy()
 
-![alt text](https://github.com/derricw/pysentech/pysentech/examples/sentechmpl.png "mpl image")
+![alt text](https://github.com/derricw/pysentech/blob/master/pysentech/examples/sentechmpl.png "mpl image")
 
     >>> pil_img = frame.as_pil()
 
