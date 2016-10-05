@@ -50,6 +50,10 @@ def make_method(cam, function, arg_types, ret_type, dll):
 class SentechCamera(object):
     """
     A sentech camera instance.
+
+    args:
+        index (int): camera index
+        dll (pysentech.sentechdll.SentechDLL): SentechDLL instance
     """
     def __init__(self, index, dll):
         self.dll = dll
@@ -66,7 +70,7 @@ class SentechCamera(object):
         """
         Takes all dll functions with the camera handle as their first argument
             and makes them into methods of SentechCamera.  This way we still
-            retain all low-level functality.
+            retain all low-level functionality.
         """
         for k, v in self.dll.functions.iteritems():
             args = v["arg_names"]
@@ -233,7 +237,8 @@ class SentechCamera(object):
 
         DOESNT WORK YET        
         """
-        self.StCam_SaveSettingFileA(path)
+        #self.StCam_SaveSettingFileA(path)
+        raise NotImplementedError("Doesn't work yet.")
 
     def load_settings(self, path):
         """
@@ -241,7 +246,8 @@ class SentechCamera(object):
         
         DOESNT WORK YET        
         """
-        self.StCam_LoadSettingFileA(path)
+        #self.StCam_LoadSettingFileA(path)
+        raise NotImplementedError("Doesn't work yet.")
         
     def _snapshot(self, timeout_ms):
         """
@@ -249,7 +255,6 @@ class SentechCamera(object):
         
         Args:
             timeout_ms (int): timeout for buffer transfer in milliseconds
-        
         """
         self.dll.StCam_TakeRawSnapShot(self.handle,
                                        self.frame.buffer,

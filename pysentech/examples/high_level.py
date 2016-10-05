@@ -22,8 +22,9 @@ Demonstrates how to:
 from pysentech import SentechSystem
 
 # initialize SentechSystem
-dot_h_file = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)\include\StCamD.h"
-system = SentechSystem(dot_h_file)
+sdk_folder = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)"
+system = SentechSystem(sdk_folder)
+#system = SentechSystem()  # or this, if you have set SENTECHPATH env variable
 print("Cameras: {}".format(system.camera_count()))
 
 # open a camera

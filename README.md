@@ -10,6 +10,10 @@ Install pysentech by running:
 
     $python setup.py install
 
+## Dependencies
+
+There are no hard dependencies for controlling cameras and acquiring frames.  However some of the examples use OpenCV, numpy, and PIL to display images.
+
 ## Usage
 
 ### Low Level
@@ -22,7 +26,7 @@ Because the Sentech SDK doesn't install itself, you have to provide the path to 
 
     >>> from pysentech import SentechSystem
 
-    >>> system = SentechSystem("path/to/header/file.h")
+    >>> system = SentechSystem("sentch/sdk/folder")
 
 Check for cameras using:
 
@@ -58,6 +62,8 @@ Frames can be cast as various types for your convenience:
 
     >>> np_img = frame.as_numpy()
 
+![alt text](https://github.com/derricw/pysentech/pysentech/examples/sentechmpl.png "mpl image")
+
     >>> pil_img = frame.as_pil()
 
 Or saved to a file using the SDK's file-saving functions:
@@ -81,6 +87,7 @@ The high-level camera objects still have access to all of the low-level function
 ## TODO LIST
 
 1. Figure out how to rope in the SDK's message dll to get better error messages.
+1. Python3 support.
 1. Acquire and test with a color camera.
 1. Implement high-level methods for the SDK's built-in AVI writing for easy movie recording.
 1. Get callbacks working.  They are currently the only part of the dll that I haven't implemented.

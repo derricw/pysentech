@@ -14,7 +14,7 @@ if 'nt' in os.name:
     malloc = ctypes.cdll.msvcrt.malloc
     free = ctypes.cdll.msvcrt.free
 else:
-    raise OSError("Only Windows supported right now.  Come back later.")
+    raise NotImplementedError("Only Windows supported right now.  Come back later.")
 
 import warnings
 
@@ -46,6 +46,7 @@ class _SentechFrame(object):
     """
     A frame from a Sentech camera.  Contains an image buffer and methods to
         convert it easily into ndarrays and PIL images, etc.
+
     """
     def __init__(self,
                  width,

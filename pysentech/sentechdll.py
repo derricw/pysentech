@@ -1,13 +1,26 @@
+"""
+sentechdll.py
+
+Python wrapper for Sentech C DLL.
+"""
 import re
 import os
 import sys
 from ctypes import *
+
+from error import SentechSystemError
 
 
 def find_dll(header_file):
     """
     Attemps to find the StCamD.dll for the appropriate archetecture given the
         location of the header file ("StCamD.h")
+
+    args:
+        header_file (str): path to header file.
+
+    returns:
+        str: path to dll for appropriate arch
     """
     if sys.maxsize > 2**32:
         arch = "64"
@@ -59,12 +72,27 @@ types = {
 
 
 class SentechDLL(object):
-    def __init__(self, header_file, dll=""):
-        self.header_file = header_file
-        if not dll:
-            dll = find_dll(header_file)
+    """
+    Auto-generated python library using the C DLL.
 
-        self.dll = windll.LoadLibrary(dll)  #WINDOWS
+    args:
+        sdk_folder (Optional[str]): Sentech SDK folder
+            (probably something like: '/blah/blah/StandardSDK(v3.08)')
+            If nothing is provided, then SENTECHPATH env variable is used.
+    """
+    def __init__(self, sdk_folder=""):
+        if not sdk_folder:
+            try:
+                sdk_folder = os.environ['SENTECHPATH']
+            except KeyError:
+                raise SentechSystemError("Couldn't find Sentech SDK. Use sdk_folder kwarg or set SENTECHPATH environment varialble.")
+
+        self.header_file = os.path.join(sdk_folder, "include/StCamD.h")
+        if not os.path.isfile(self.header_file):
+            raise SentechSystemError("No header file located @ {}".format(self.header_file))
+        self.path = find_dll(self.header_file)
+
+        self.dll = windll.LoadLibrary(self.path)  #WINDOWS
         
         self._load_constants()
         self._load_functions()
@@ -131,6 +159,6 @@ class SentechDLL(object):
     
 
 if __name__ == "__main__":
-    dot_h_file = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)\include\StCamD.h"
-    dll = SentechDLL(dot_h_file)
+    sentech_folder = r"C:\Users\derricw\Downloads\StandardSDK(v3.08)\StandardSDK(v3.08)"
+    dll = SentechDLL(sentech_folder)
 

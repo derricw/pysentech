@@ -12,3 +12,6 @@ class SentechError(Exception):
         code = dll.StCam_GetLastError(cam_handle)
         message = "error code {}".format(code)
         super(SentechError, self).__init__(message)
+
+class SentechSystemError(Exception):
+    pass
