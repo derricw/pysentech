@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os, sys, glob, fnmatch
 
 setup(name="pysentech",
-      version=0.1,
+      version=0.2,
       description="pysentech is a python wrapper for the Sentech USB Camera SDK",
       long_description=""" pysentech is a python wrapper for the Sentech USB Camera SDK.
         It features a low-level interface for interacting with the C dll directly, and a high-level
@@ -16,6 +16,8 @@ setup(name="pysentech",
           'Operating System :: Microsoft :: Windows',
           'Natural Language :: English',
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
           'Topic :: Multimedia :: Graphics :: Capture :: Digital Camera',
           'Topic :: Multimedia :: Video :: Display',
           'Topic :: Software Development :: Libraries :: Python Modules'],

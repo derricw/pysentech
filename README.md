@@ -91,7 +91,6 @@ The high-level camera objects still have access to all of the low-level function
 ## TODO LIST
 
 1. Figure out how to rope in the SDK's message dll to get better error messages.
-1. Python3 support.
 1. Acquire and test with a color camera.
 1. Implement high-level methods for the SDK's built-in AVI writing for easy movie recording.
 1. Get callbacks working.  They are currently the only part of the dll that I haven't implemented.
