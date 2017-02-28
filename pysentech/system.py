@@ -7,8 +7,8 @@ Created on Mon Dec 07 21:55:57 2015
 
 from ctypes import *
 
-from sentechdll import SentechDLL
-from camera import SentechCamera
+from .sentechdll import SentechDLL
+from .camera import SentechCamera
 
 
 class SentechSystem(object):

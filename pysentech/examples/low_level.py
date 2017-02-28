@@ -35,13 +35,15 @@ if cameras_available < 1:
 
 # Open a camera
 camera = dll.StCam_Open(0)
+handle_id = camera.contents.value
 
-if camera > 0:
-    print("Camera open! Handle: {}".format(camera))
+if handle_id > 0:
+    print("Camera open! Handle: {}".format(handle_id))
 else:
     raise Exception("Failed to initialize camera!")
 
 try:
+
     # Get image shape
     cwidth = c_ulong()
     cheight = c_ulong()
@@ -49,7 +51,8 @@ try:
     cscanmode = c_ushort()
     coffsetx = c_ulong()
     coffsety = c_ulong()
-    
+
+
     dll.StCam_GetImageSize(camera, byref(creserved), byref(cscanmode),
                            byref(coffsetx), byref(coffsety), byref(cwidth),
                            byref(cheight))
@@ -68,12 +71,12 @@ try:
     dll.StCam_GetPreviewPixelFormat(camera, byref(cpixformat))
     pixformat = cpixformat.value
     print("Camera pixel format: {}".format(pixformat))
-    
-    # Get bits per pixel
+
+    # Get bytes per pixel
     cbpp = c_ulong()
     dll.StCam_GetTransferBitsPerPixel(camera, byref(cbpp))
     bpp = cbpp.value
-    print("Camera bits per pixel: {}".format(bpp))
+    print("Camera bytes per pixel: {}".format(bpp))
     
     # Get bytes per image
     cbpi = c_ulong()
@@ -82,19 +85,19 @@ try:
     print("Camera bytes per image: {}".format(bpi))
     
     # Allocate memory for image
-    imgpointer = malloc(bpi)
-    imgdata = cast(imgpointer, POINTER(c_byte))
-    
+    imgdata = cast(create_string_buffer(bpi), POINTER(c_byte))
+
     # Transfer image from camera
     cbytesxferred = c_ulong()
     cframeno = c_ulong()
     cmillisecs = c_ulong(1000)
+
     ret = dll.StCam_TakeRawSnapShot(camera, imgdata, bpi,
                                     byref(cbytesxferred), byref(cframeno),
                                     cmillisecs)
-    
+
     # Save the buffer as an image
-    path = "test_image.png"
+    path = "test_image.png".encode("utf-8")
     if not dll.StCam_SaveImageA(camera, width, height, pixformat, imgdata,
                                 path, 0):
         print("Failed to save image.")

@@ -7,8 +7,9 @@ import re
 import os
 import sys
 from ctypes import *
+from ctypes.wintypes import *
 
-from error import SentechSystemError
+from .error import SentechSystemError
 
 
 def find_dll(header_file):
@@ -48,7 +49,8 @@ types = {
     'UINT': c_uint,
     'WORD': c_ushort,
     'DWORD': c_ulong,
-    'HANDLE': c_ulong,
+    #'HANDLE': c_ulong,
+    'HANDLE': POINTER(HANDLE),
     'PWORD': POINTER(c_ushort),
     'PDWORD': POINTER(c_ulong),
     'HWND*': POINTER(c_ulong),
@@ -136,20 +138,21 @@ class SentechDLL(object):
                                             'arg_names': func_arg_names,
                                             'ret_type': ret_type,}
         # Set up their return and arg types
-        for k, v in functions.iteritems():
+        for k, v in functions.items():
             cfunc = getattr(self.dll, k)
             cfunc.__name__ = k
             cfunc.__doc__ = "{}\n arg_types:{}\n arg_names:{}\n returns:{}\n".format(k,
                 v['arg_types'], v['arg_names'], v['ret_type'])
             try:
                 cfunc.argtypes = [types[t] for t in v['arg_types']]
-                #pass
+                pass
             except KeyError:
                 # Can't parse types appropriately        
                 #print v['arg_types']
                 pass
             try:
                 cfunc.restype = types[v['ret_type']]
+                #print(cfunc.restype)
             except KeyError:
                 print("Couldn't parse return type for: {}".format(k))
             functions[k]['function'] = cfunc

@@ -65,36 +65,29 @@ class _SentechFrame(object):
         
     def _setup_buffer(self):
         """ Allocate memory for image """
-        self.imgpointer = malloc(self.bpi)
-        self.buffer = cast(self.imgpointer, POINTER(c_byte))
+        # python 2
+        #self.imgpointer = malloc(self.bpi)
+        #self.buffer = cast(self.imgpointer, POINTER(c_byte))
+
+        # should work in python 2 and 3
+        self.buffer = cast(create_string_buffer(self.bpi), POINTER(c_byte))
         
     def _release_buffer(self):
         """ Release memory for image """
-        free(self.imgpointer)
+        # python 2
+        # free(self.imgpointer)
+        del self.buffer
         
     def as_array(self):
         """ Returns a ctypes array of the proper shape. """
         return (c_ubyte * int(self.height*self.bpi) *
-                 int(self.width*self.bpi)).from_address(addressof(self.buffer.contents))
+                int(self.width*self.bpi)).from_address(addressof(self.buffer.contents))
         
     def as_numpy(self):
         """ Returns numpy img. """
         return np.ndarray(buffer=self.as_array(),
                           dtype=np.uint8,
                           shape=(self.height, self.width))
-                          
-    def to_file(self, path):
-        """ Saves an image to a file. """
-        cpixformat = c_ulong()
-        self.camera.StCam_GetPreviewPixelFormat(cpixformat)
-        if not self.camera.dll.StCam_SaveImageA(self.camera.handle,
-                                                self.width,
-                                                self.height,
-                                                cpixformat,
-                                                self.buffer,
-                                                path,
-                                                0):
-            raise IOError("Couldn't save file to: {}".format(path))
         
         
     def as_pil(self):
@@ -106,6 +99,24 @@ class _SentechFrame(object):
                                 "raw",
                                 pformat,
                                 0, 1)  #TODO: what do these do?
+
+    def to_file(self, path):
+        """ Saves an image to a file. 
+
+        args:
+            path (str): file path for image
+        """
+        path = path.encode()
+        cpixformat = c_ulong()
+        self.camera.StCam_GetPreviewPixelFormat(cpixformat)
+        if not self.camera.dll.StCam_SaveImageA(self.camera.handle,
+                                                self.width,
+                                                self.height,
+                                                cpixformat,
+                                                self.buffer,
+                                                path,
+                                                0):
+            raise IOError("Couldn't save file to: {}".format(path))
         
     def __del__(self):
         self._release_buffer()

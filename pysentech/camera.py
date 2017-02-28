@@ -6,8 +6,8 @@ Created on Mon Dec 07 22:04:46 2015
 """
 from ctypes import *
 
-from error import SentechError
-from frame import _SentechFrame
+from .error import SentechError
+from .frame import _SentechFrame
 
 #Args that will be passed by reference
 POINTER_ARGS = [
@@ -72,7 +72,8 @@ class SentechCamera(object):
             and makes them into methods of SentechCamera.  This way we still
             retain all low-level functionality.
         """
-        for k, v in self.dll.functions.iteritems():
+
+        for k, v in self.dll.functions.items():
             args = v["arg_names"]
             if (len(args) > 0) and (args[0] == "hCamera"):
                 method_name = k
@@ -103,11 +104,12 @@ class SentechCamera(object):
         cpixformat = c_ulong()
         self.StCam_GetPreviewPixelFormat(cpixformat)
         return PIXEL_FORMATS[cpixformat.value]
+
     @pixel_format.setter
     def pixel_format(self, value):
         if value not in PIXEL_FORMATS.values():
             raise KeyError("Invalid pixel format, try: {}".format(PIXEL_FORMATS.values()))
-        for k, v in PIXEL_FORMATS.iteritems():
+        for k, v in PIXEL_FORMATS.items():
             if v == value:
                 self.StCam_SetPreviewPixelFormat(k)
                 self._setup_frame()  #new payload size
@@ -125,6 +127,7 @@ class SentechCamera(object):
         self.StCam_GetImageSize(creserved, cscanmode, coffsetx, coffsety,
                                 cwidth, cheight)
         return cwidth.value, cheight.value
+
     @image_shape.setter
     def image_shape(self, value):
         """
@@ -151,6 +154,7 @@ class SentechCamera(object):
         self.StCam_GetImageSize(creserved, cscanmode, coffsetx, coffsety,
                                 cwidth, cheight)
         return coffsetx.value, coffsety.value
+
     @image_offsets.setter
     def image_offsets(self, value):
         """
@@ -199,7 +203,8 @@ class SentechCamera(object):
         
     @property
     def model(self):
-        name = c_char_p(" "*100)
+        #name = c_char_p(" "*100)
+        name = create_string_buffer(100)
         self.StCam_GetProductNameA(name, len(name.value))
         return name.value
             
@@ -279,8 +284,11 @@ class SentechCamera(object):
 
     def release(self):
         """ Releases the camera and frees frame buffer. """
-        del self.frame
-        self.StCam_Close()
+        try:
+            del self.frame
+            self.StCam_Close()
+        except AttributeError:
+            pass
         
     def __del__(self):
         self.release()

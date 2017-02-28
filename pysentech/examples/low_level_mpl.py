@@ -42,9 +42,10 @@ if cameras_available < 1:
 
 # Open a camera
 camera = dll.StCam_Open(0)
+handle_id = camera.contents.value
 
-if camera > 0:
-    print("Camera open! Handle: {}".format(camera))
+if handle_id > 0:
+    print("Camera open! Handle: {}".format(handle_id))
 else:
     raise Exception("Failed to initialize camera!")
 
@@ -89,8 +90,7 @@ try:
     print("Camera bytes per image: {}".format(bpi))
     
     # Allocate memory for image
-    imgpointer = malloc(bpi)
-    imgdata = cast(imgpointer, POINTER(c_byte))
+    imgdata = cast(create_string_buffer(bpi), POINTER(c_byte))
     
     # Transfer image from camera
     cbytesxferred = c_ulong()
