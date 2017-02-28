@@ -40,6 +40,12 @@ print("Image size: {} bytes".format(cam.image_size))
 print("Image pixel format: {}".format(cam.pixel_format))
 print("Image shape: {}".format(cam.image_shape))
 print("Max image shape: {}".format(cam.max_image_shape))
+print("Gain: {}".format(cam.gain))
+print("Max Gain: {}".format(cam.max_gain))
+print("Exposure: {} seconds".format(cam.exposure))
+print("Max Exposure: {} seconds".format(cam.max_exposure))
+
+#import pdb; pdb.set_trace()
 
 # set some image properties
 cam.image_height = 1040

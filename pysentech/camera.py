@@ -170,6 +170,7 @@ class SentechCamera(object):
     def image_height(self):
         _, height = self.image_shape
         return height
+
     @image_height.setter
     def image_height(self, value):
         width, _ = self.image_shape
@@ -179,6 +180,7 @@ class SentechCamera(object):
     def image_width(self):
         width, _  = self.image_shape
         return width
+
     @image_width.setter
     def image_width(self, value):
         _, height = self.image_shape
@@ -189,12 +191,65 @@ class SentechCamera(object):
         cgain = c_ushort()
         self.StCam_GetGain(cgain)
         return cgain.value
+
     @gain.setter
     def gain(self, value):
         if value < 0:
             value = 0
         self.StCam_SetGain(value)
-    
+
+    @property
+    def max_gain(self):
+        cgain = c_ushort()
+        self.StCam_GetMaxGain(cgain)
+        return cgain.value
+
+    @property
+    def exposure(self):
+        """ Have to first get exposure clock value then convert
+            to seconds using GetExposureTimeFromClock.
+        """
+        c_exposure = c_ulong()
+        self.StCam_GetExposureClock(c_exposure)
+        clock_val = c_exposure.value
+        exp_sec = c_float()
+        self.StCam_GetExposureTimeFromClock(clock_val, exp_sec)
+        return exp_sec.value
+
+    @exposure.setter
+    def exposure(self, value):
+        """ Set exposure time.
+         Convert seconds to clock value using GetExposureClockFromTime
+            first.
+        """
+        c_exposure = c_ulong()
+        self.StCam_GetExposureClockFromTime(value, c_exposure)
+        clock_val = c_exposure.value
+        self.StCam_SetExposureClock(clock_val)
+
+    @property
+    def max_exposure(self):
+        c_exposure = c_ulong()
+        self.StCam_GetMaxLongExposureClock(c_exposure)
+        clock_val = c_exposure.value
+        exp_sec = c_float()
+        self.StCam_GetExposureTimeFromClock(clock_val, exp_sec)
+        return exp_sec.value
+
+    @property
+    def gamma(self):
+        """ Doesn't work yet.  Have to set gamma mode first.
+        """
+        c_gamma = c_ushort()
+        self.StCam_GetCameraGammaValue(c_gamma)
+        return c_gamma.value
+
+    @gamma.setter
+    def gamma(self, value):
+        """ Doesn't work yet. have to set gamma mode first.
+        """
+        self.StCam_SetCameraGammaValue(value)
+
     @property    
     def max_image_shape(self):
         cwidth, cheight = c_ulong(), c_ulong()
