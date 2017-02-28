@@ -204,7 +204,7 @@ class SentechCamera(object):
     @property
     def model(self):
         #name = c_char_p(" "*100)
-        name = create_string_buffer(100)
+        name = create_string_buffer(b" "*100)
         self.StCam_GetProductNameA(name, len(name.value))
         return name.value
             
