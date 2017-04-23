@@ -50,6 +50,10 @@ Cameras have several properties:
 
     >>> cam.gain = 50
 
+    >>> cam.exposure
+
+    0.05110293883192
+
     >>> cam.image_shape
 
     (1360, 1040)
